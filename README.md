@@ -20,8 +20,9 @@ FortiAnalyzer SOC Automation Service valid license
 
 ## Instalation Requirements
 
-1. Verify your FortiAnalyzer current Firmware Version
-2. Verify that your FortiAnalyzer system time is udpate and in sync
+1. Verify your FortiAnalyzer current Firmware Version.
+2. Verify that your FortiAnalyzer system time is udpate and in sync.
+
 ![image alt text](images/image001.jpg)
 
 
