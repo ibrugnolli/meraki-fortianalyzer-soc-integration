@@ -25,4 +25,7 @@ FortiAnalyzer SOC Automation Service valid license
 
 ![image alt text](images/image001.jpg)
 
+3. Verify that your FortiAnalyzer in fylly connected and registered with Forticare Support, and that you have a valid SOC Automation Service license.
+
+![image alt text](images/image002.jpg)
 
