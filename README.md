@@ -15,6 +15,7 @@ Requirement:
 
 FortiAnalyzer 7.6.4 or later
 
+![image alt text](images/image001.jpg)
 
 ## Enviroment Requirements
 
