@@ -29,7 +29,7 @@ FortiAnalyzer SOC Automation Service valid license
 
 ![image alt text](images/image002.jpg)
 
-4. Verify that or Fortianalyzer conection with Fortiguard is healthy
+4. Verify that your Fortianalyzer conection with Fortiguard is healthy
 
 ![image alt text](images/image003.jpg)
 
