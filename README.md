@@ -55,3 +55,7 @@ A carefully curated selection of log parsers, delivered by the RHSP package are 
 
 ![image alt text](images/image005.jpg)
 
+7. Log Parser:
+
+![image alt text](images/image006.jpg)
+
