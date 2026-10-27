@@ -72,4 +72,8 @@ Now, your Fortianalyzer is ready to start receiving and proper parser Cisco Mera
 
 ## Cisco Meraki MX device Setup steps:
 
+![image alt text](images/image009.jpg)
 
+![image alt text](images/image010.jpg)
+
+![image alt text](images/image011.jpg)
