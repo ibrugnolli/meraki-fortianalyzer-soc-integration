@@ -45,9 +45,9 @@ Alert handlers delivered by the RHSP package are displayed with Origin = FortiGu
 You will need to create and configure the connector for your environment. 
 
 * SIEM parsers: Go to Incidents & Alerts > Log Parsers > Log Parsers.
-Log parsers delivered by the RHSP package are displayed with Origin = FortiGuard.
+A carefully curated selection of log parsers, delivered by the RHSP package are displayed with Origin = FortiGuard. There parsers make the integration with non-Fortinet devices efforless and eficient.
 
-4. To review the list of objects, go to Incidents & Alerts > FortiGuard Services > SOC Automation. Based on the Config Type for the object, you can find the objects in the following panes in the FortiAnalyzer GUI:
+4. To review the list of Third-Party log parsers from the Content Packs, go to Incidents & Alerts > FortiGuard Services > SOC Automation:
 
 ![image alt text](images/image004.jpg)
 
