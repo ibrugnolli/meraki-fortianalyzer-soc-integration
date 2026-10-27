@@ -67,3 +67,9 @@ A carefully curated selection of log parsers, delivered by the RHSP package are 
 10. Move the Cisco parser to the top of the screen. Verify the parser origin as *FortiGuard*
 
 ![image alt text](images/image008.jpg)
+
+Now, your Fortianalyzer is ready to start receiving and proper parser Cisco Meraki MX syslog messages.
+
+## Cisco Meraki MX device Setup steps:
+
+
