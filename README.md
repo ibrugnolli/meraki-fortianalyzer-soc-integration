@@ -55,7 +55,9 @@ A carefully curated selection of log parsers, delivered by the RHSP package are 
 
 ![image alt text](images/image005.jpg)
 
-7. Log Parser:
+7. Install Third-Party Log Parser: After verifying that you SOC automation addon is in sync with Fortiguard Content Packs, go to Incidents & Alerts > Log Parsers > Log Parsers in order to install the Cisco Meraki MX Firewall parser.
+8. Click on "Uninstalled Log Parsers" to verify the list of Third-Party log parsers available:
 
 ![image alt text](images/image006.jpg)
+
 
