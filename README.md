@@ -33,3 +33,21 @@ FortiAnalyzer SOC Automation Service valid license
 
 ![image alt text](images/image003.jpg)
 
+The FortiAnalyzer Security Automation Service includes support for the RHSP FortiGuard package which is used to share updated reports, alert handlers, SIEM parsers, and connectors as content packages. RHSP FortiGuard package objects are only applied with a valid Security Automation Service license.
+
+* Reports: Go to Reports > Report Definitions > All Reports.
+Reports included in the RHSP package are stored on the global level. They are displayed in the global Security Automation Reports folder. The global folder and global reports are identified with the system theme's color applied to the icon. Reports delivered by the RHSP package are displayed with Origin = FortiGuard.
+
+* Alert handlers: Go to Incidents & Alerts > Alert Handlers > Alert Handlers.
+Alert handlers delivered by the RHSP package are displayed with Origin = FortiGuard.
+
+* Connectors: Go to Incidents & Alerts > Automation > Active Connectors.
+You will need to create and configure the connector for your environment. 
+
+* SIEM parsers: Go to Incidents & Alerts > Log Parsers > Log Parsers.
+Log parsers delivered by the RHSP package are displayed with Origin = FortiGuard.
+
+4. To review the list of objects, go to Incidents & Alerts > FortiGuard Services > SOC Automation. Based on the Config Type for the object, you can find the objects in the following panes in the FortiAnalyzer GUI:
+
+![image alt text](images/image004.jpg)
+
