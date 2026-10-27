@@ -60,7 +60,10 @@ A carefully curated selection of log parsers, delivered by the RHSP package are 
 
 ![image alt text](images/image006.jpg)
 
-9. Search for "Cisco Meraki Firewall Log Parser" and click INSTALL
+9. Search for "Cisco Meraki Firewall Log Parser" and click *Install* 
 
 ![image alt text](images/image007.jpg)
 
+10. Move the Cisco parser to the top of the screen. Verify the parser origin as *FortiGuard*
+
+![image alt text](images/image008.jpg)
