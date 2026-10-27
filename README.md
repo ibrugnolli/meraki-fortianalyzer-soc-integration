@@ -51,3 +51,7 @@ A carefully curated selection of log parsers, delivered by the RHSP package are 
 
 ![image alt text](images/image004.jpg)
 
+5. Search for the Cisco Meraki parser:
+
+![image alt text](images/image005.jpg)
+
