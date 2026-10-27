@@ -47,11 +47,11 @@ You will need to create and configure the connector for your environment.
 * SIEM parsers: Go to Incidents & Alerts > Log Parsers > Log Parsers.
 A carefully curated selection of log parsers, delivered by the RHSP package are displayed with Origin = FortiGuard. There parsers make the integration with non-Fortinet devices efforless and eficient.
 
-4. To review the list of Third-Party log parsers from the Content Packs, go to Incidents & Alerts > FortiGuard Services > SOC Automation:
+5. To review the list of Third-Party log parsers from the Content Packs, go to Incidents & Alerts > FortiGuard Services > SOC Automation:
 
 ![image alt text](images/image004.jpg)
 
-5. Search for the Cisco Meraki parser:
+6. Search for the Cisco Meraki parser:
 
 ![image alt text](images/image005.jpg)
 
