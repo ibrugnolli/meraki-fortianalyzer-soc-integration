@@ -1,0 +1,463 @@
+{
+  "header": {
+    "name": "Cisco Meraki Custom Log Parser v2",
+    "category": "Cisco Device",
+    "application": "Meraki",
+    "author": "Converted from BenderScript/meraki_syslog_parser",
+    "change_time": "2026-10-16 16:07:39",
+    "version": "7.6.0"
+  },
+  "data_source": {
+    "matchers": [
+      {
+        "description": "Cisco Meraki syslog '<epoch> <device> <type> <message>' - any type (firewall, flows, ip_flow_start/end, urls, events, security_event, airmarshal_events, ...).",
+        "type": "syslog",
+        "patterns": [
+          "^(?<header>.*)1[[:space:]]+(?<meraki_epoch>[0-9]+[.][0-9]+)[[:space:]]+(?<meraki_dev>[^[:space:]]+)[[:space:]]+(?<meraki_type>[[:alpha:]][[:alnum:]_-]*)[[:space:]]+(?<msg_body>.+)$"
+        ]
+      }
+    ]
+  },
+  "parser": {
+    "rules": {
+      "rule_init": {
+        "description": "Static source fields.",
+        "actions": [
+          "tmp_body = concat(\" \", msg_body)",
+          "data_sourcetype = \"Cisco Meraki\"",
+          "data_sourcename = meraki_dev",
+          "hostName = meraki_dev",
+          "eventSubtype = meraki_type",
+          "eventType = concat(\"Meraki\", \"_\", meraki_type)"
+        ]
+      },
+      "rule_header": {
+        "description": "Timestamp from a 'Mon DD HH:MM:SS' header, else from the Meraki epoch; relay IP from header.",
+        "actions": [
+          {
+            "description": "header has BSD date",
+            "trigger": {
+              "expression": "${condition_1}",
+              "condition_1": "header.is_not_empty()"
+            },
+            "if": {
+              "trigger": [
+                "tmp_mon, tmp_day, tmp_hour, tmp_min, tmp_sec = header.match(\"([[:alpha:]]+)[[:space:]]+([0-9]+)[[:space:]]+([0-9][0-9]):([0-9][0-9]):([0-9][0-9])\")",
+                "tmp_mon = get_month_num(tmp_mon)",
+                "tmp_year = get_current_year()",
+                "data_timestamp = to_timestamp(tmp_year, tmp_mon, tmp_day, tmp_hour, tmp_min, tmp_sec)",
+                "hostIpAddr = header.match(\"([0-9]+[.][0-9]+[.][0-9]+[.][0-9]+)\")"
+              ]
+            }
+          },
+          {
+            "description": "no header date: use Meraki epoch seconds",
+            "trigger": {
+              "expression": "${condition_1}",
+              "condition_1": "data_timestamp.is_empty()"
+            },
+            "if": {
+              "trigger": [
+                "tmp_epoch = meraki_epoch.match(\"^([0-9]+)\")",
+                "data_timestamp = epoch_timestamp(tmp_epoch)"
+              ]
+            }
+          }
+        ]
+      },
+      "rule_network": {
+        "description": "Common network fields for every type except airmarshal (where src/dst are MACs).",
+        "trigger": {
+          "expression": "${condition_1}",
+          "condition_1": "meraki_type.is_not_in(\"airmarshal_events\")"
+        },
+        "actions": [
+          "srcIpAddr = tmp_body.match(\"[[:space:]]src=[']?([^'[:space:]]+)\")",
+          "dstIpAddr = tmp_body.match(\"[[:space:]]dst=[']?([^'[:space:]]+)\")",
+          "tmp_src_ip4, tmp_src_port = srcIpAddr.match(\"^([0-9]+[.][0-9]+[.][0-9]+[.][0-9]+):([0-9]+)$\")",
+          "tmp_dst_ip4, tmp_dst_port = dstIpAddr.match(\"^([0-9]+[.][0-9]+[.][0-9]+[.][0-9]+):([0-9]+)$\")",
+          "srcIpPort = tmp_body.match(\"[[:space:]]sport=[']?([0-9]+)\")",
+          "dstIpPort = tmp_body.match(\"[[:space:]]dport=[']?([0-9]+)\")",
+          "ipProto = tmp_body.match(\"[[:space:]]protocol=[']?([[:alnum:]]+)\")",
+          "srcMACAddr = tmp_body.match(\"[[:space:]]mac=[']?([0-9A-Fa-f:]+)\")",
+          "srcNatIp = tmp_body.match(\"[[:space:]]translated_src_ip=[']?([^'[:space:]]+)\")",
+          "dstNatIp = tmp_body.match(\"[[:space:]]translated_dst_ip=[']?([^'[:space:]]+)\")",
+          {
+            "description": "translated_port belongs to destination NAT",
+            "trigger": {
+              "expression": "${condition_1}",
+              "condition_1": "msg_body.contains(\"translated_dst_ip=\")"
+            },
+            "if": {
+              "trigger": [
+                "dstNatPort = tmp_body.match(\"[[:space:]]translated_port=[']?([0-9]+)\")"
+              ]
+            }
+          },
+          {
+            "description": "translated_port belongs to source NAT",
+            "trigger": {
+              "expression": "${condition_1}",
+              "condition_1": "msg_body.contains(\"translated_src_ip=\")"
+            },
+            "if": {
+              "trigger": [
+                "srcNatPort = tmp_body.match(\"[[:space:]]translated_port=[']?([0-9]+)\")"
+              ]
+            }
+          }
+        ]
+      },
+      "rule_decision": {
+        "description": "allow/deny from 'pattern: X rule', 'decision=X', 'flows allow|deny ...' or action='X'.",
+        "actions": [
+          {
+            "description": "flows allow|deny ... (checked first; pattern:/decision= below override it)",
+            "trigger": {
+              "expression": "${condition_1}",
+              "condition_1": "meraki_type == \"flows\""
+            },
+            "if": {
+              "trigger": [
+                "tmp_decision = msg_body.match(\"^(allow|deny)[[:space:]]\")"
+              ]
+            }
+          },
+          {
+            "description": "pattern: <allow|deny|1|0> <rule>",
+            "trigger": {
+              "expression": "${condition_1}",
+              "condition_1": "msg_body.contains(\"pattern:\")"
+            },
+            "if": {
+              "trigger": [
+                "tmp_decision, firewallRule = msg_body.match(\"pattern:[[:space:]]+([^[:space:]]+)[[:space:]]*(.*)$\")"
+              ]
+            }
+          },
+          {
+            "description": "decision=X",
+            "trigger": {
+              "expression": "${condition_1}",
+              "condition_1": "msg_body.contains(\"decision=\")"
+            },
+            "if": {
+              "trigger": [
+                "tmp_decision = tmp_body.match(\"[[:space:]]decision=[']?([^'[:space:]]+)\")"
+              ]
+            }
+          },
+          {
+            "description": "action=X",
+            "trigger": {
+              "expression": "${condition_1}",
+              "condition_1": "msg_body.contains(\"action=\")"
+            },
+            "if": {
+              "trigger": [
+                "tmp_decision = tmp_body.match(\"[[:space:]]action=[']?([^'[:space:]]+)\")"
+              ]
+            }
+          },
+          {
+            "description": "1 = allow",
+            "trigger": {
+              "expression": "${condition_1}",
+              "condition_1": "tmp_decision == \"1\""
+            },
+            "if": {
+              "trigger": [
+                "eventAction = \"allow\""
+              ]
+            }
+          },
+          {
+            "description": "0 = deny",
+            "trigger": {
+              "expression": "${condition_1}",
+              "condition_1": "tmp_decision == \"0\""
+            },
+            "if": {
+              "trigger": [
+                "eventAction = \"deny\""
+              ]
+            }
+          },
+          {
+            "description": "word decision",
+            "trigger": {
+              "expression": "${condition_1}",
+              "condition_1": "tmp_decision.is_not_in(\"0\", \"1\")"
+            },
+            "if": {
+              "trigger": [
+                "eventAction = tmp_decision"
+              ]
+            }
+          }
+        ]
+      },
+      "rule_urls": {
+        "description": "urls: [agent='UA'] request: METHOD URL",
+        "trigger": {
+          "expression": "${condition_1}",
+          "condition_1": "meraki_type == \"urls\""
+        },
+        "actions": [
+          "userAgent = msg_body.match(\"agent='([^']*)'\")",
+          "httpMethod, infoURL = msg_body.match(\"request:[[:space:]]+([[:alpha:]]+)[[:space:]]+([^[:space:]]+)\")",
+          "eventAction = \"allow\""
+        ]
+      },
+      "rule_events": {
+        "description": "events: '<subtype> ...' or 'type=<subtype> ...'; content filtering fields.",
+        "trigger": {
+          "expression": "${condition_1}",
+          "condition_1": "meraki_type == \"events\""
+        },
+        "actions": [
+          "eventSubtype = msg_body.match(\"^([[:alnum:]_]+)\")",
+          {
+            "description": "type=<subtype>",
+            "trigger": {
+              "expression": "${condition_1}",
+              "condition_1": "msg_body.contains(\"type=\")"
+            },
+            "if": {
+              "trigger": [
+                "eventSubtype = tmp_body.match(\"[[:space:]]type=[']?([[:alnum:]_]+)\")"
+              ]
+            }
+          },
+          "eventType = concat(\"Meraki\", \"_\", eventSubtype)",
+          "infoURL = msg_body.match(\"url='([^']*)'\")",
+          "urlCategory = msg_body.match(\"category0='([^']*)'\")",
+          "tmp_dst_ip4, tmp_dst_port = msg_body.match(\"server='([^':]+):([0-9]+)'\")",
+          "srcMACAddr = tmp_body.match(\"[[:space:]]client_mac=[']?([0-9A-Fa-f:]+)\")",
+          "wlanSsid = tmp_body.match(\"[[:space:]]ssid=[']?([^']+)\")",
+          {
+            "description": "content filtering block",
+            "trigger": {
+              "expression": "${condition_1}",
+              "condition_1": "eventSubtype == \"content_filtering_block\""
+            },
+            "if": {
+              "trigger": [
+                "eventAction = \"block\""
+              ]
+            }
+          }
+        ]
+      },
+      "rule_security_event": {
+        "description": "security_event ids_alerted / security_filtering_file_scanned ...",
+        "trigger": {
+          "expression": "${condition_1}",
+          "condition_1": "meraki_type == \"security_event\""
+        },
+        "actions": [
+          "eventSubtype = msg_body.match(\"^([[:alnum:]_]+)\")",
+          "eventType = concat(\"Meraki\", \"_\", eventSubtype)",
+          "threatId = tmp_body.match(\"[[:space:]]signature=[']?([^'[:space:]]+)\")",
+          "threatSeverity = tmp_body.match(\"[[:space:]]priority=[']?([0-9]+)\")",
+          "netDirection = tmp_body.match(\"[[:space:]]direction=[']?([[:alpha:]]+)\")",
+          "dstMACAddr = tmp_body.match(\"[[:space:]]dhost=[']?([0-9A-Fa-f:]+)\")",
+          "threatName = msg_body.match(\"message:[[:space:]]+(.+)$\")",
+          "threatName = tmp_body.match(\"[[:space:]]name=[']?([^']+)\")",
+          "fileHash = tmp_body.match(\"[[:space:]]sha256=[']?([0-9A-Fa-f]+)\")",
+          "threatAction = tmp_body.match(\"[[:space:]]disposition=[']?([^'[:space:]]+)\")",
+          "infoURL = msg_body.match(\"url=([^[:space:]]+)\")"
+        ]
+      },
+      "rule_airmarshal": {
+        "description": "airmarshal_events: type=X ssid bssid src/dst MACs channel rssi",
+        "trigger": {
+          "expression": "${condition_1}",
+          "condition_1": "meraki_type == \"airmarshal_events\""
+        },
+        "actions": [
+          "eventSubtype = tmp_body.match(\"[[:space:]]type=[']?([[:alnum:]_]+)\")",
+          "eventType = concat(\"Meraki_airmarshal\", \"_\", eventSubtype)",
+          "srcMACAddr = tmp_body.match(\"[[:space:]]src=[']?([0-9A-Fa-f:]+)\")",
+          "dstMACAddr = tmp_body.match(\"[[:space:]]dst=[']?([0-9A-Fa-f:]+)\")",
+          "wlanSsid = tmp_body.match(\"[[:space:]]ssid=[']?([^']+)\")"
+        ]
+      }
+    },
+    "field_map": {
+      "data_sourceid": [],
+      "data_sourcename": [
+        "data_sourcename"
+      ],
+      "data_sourcetype": [
+        "data_sourcetype"
+      ],
+      "data_sourceversion": [],
+      "data_timestamp": [
+        "data_timestamp"
+      ],
+      "app_cat": [
+        "urlCategory"
+      ],
+      "app_id": [],
+      "app_name": [],
+      "app_proc": [],
+      "app_ref": [],
+      "app_service": [],
+      "app_state": [],
+      "app_ver": [],
+      "dns_query": [],
+      "dns_querytype": [],
+      "dns_response": [],
+      "dst_domain": [],
+      "dst_geo": [],
+      "dst_intf": [],
+      "dst_ip": [
+        "tmp_dst_ip4",
+        "dstIpAddr"
+      ],
+      "dst_mac": [
+        "dstMACAddr"
+      ],
+      "dst_natip": [
+        "dstNatIp"
+      ],
+      "dst_natport": [
+        "dstNatPort"
+      ],
+      "dst_port": [
+        "dstIpPort",
+        "tmp_dst_port"
+      ],
+      "event_action": [
+        "eventAction"
+      ],
+      "event_id": [],
+      "event_message": [
+        "msg_body"
+      ],
+      "event_outcome": [],
+      "event_policy": [
+        "firewallRule"
+      ],
+      "event_profile": [],
+      "event_ref": [],
+      "event_severity": [],
+      "event_subtype": [
+        "eventSubtype"
+      ],
+      "event_type": [
+        "eventType"
+      ],
+      "event_cat": [],
+      "file_accessetime": [],
+      "file_createtime": [],
+      "file_ext": [],
+      "file_hash": [
+        "fileHash"
+      ],
+      "file_hashtype": [],
+      "file_name": [],
+      "file_path": [],
+      "file_size": [],
+      "host_classification": [],
+      "host_hwvendor": [],
+      "host_hwver": [],
+      "host_ip": [
+        "hostIpAddr"
+      ],
+      "host_location": [],
+      "host_mac": [],
+      "host_name": [
+        "hostName"
+      ],
+      "host_osfamily": [],
+      "host_osname": [],
+      "host_osver": [],
+      "host_owner": [],
+      "host_type": [],
+      "host_uid": [],
+      "http_cookie": [],
+      "http_method": [
+        "httpMethod"
+      ],
+      "http_referer": [],
+      "http_url": [
+        "infoURL"
+      ],
+      "http_useragent": [
+        "userAgent"
+      ],
+      "mail_from": [],
+      "mail_size": [],
+      "mail_subject": [],
+      "mail_to": [],
+      "net_direction": [
+        "netDirection"
+      ],
+      "net_name": [],
+      "net_payloadid": [],
+      "net_proto": [
+        "ipProto"
+      ],
+      "net_rcvdpkts": [],
+      "net_recvbytes": [],
+      "net_sentbytes": [],
+      "net_sentpkts": [],
+      "net_sessionduration": [],
+      "net_sessionid": [],
+      "net_ssid": [
+        "wlanSsid"
+      ],
+      "src_domain": [],
+      "src_geo": [],
+      "src_intf": [],
+      "src_ip": [
+        "tmp_src_ip4",
+        "srcIpAddr"
+      ],
+      "src_mac": [
+        "srcMACAddr"
+      ],
+      "src_natip": [
+        "srcNatIp"
+      ],
+      "src_natport": [
+        "srcNatPort"
+      ],
+      "src_port": [
+        "srcIpPort",
+        "tmp_src_port"
+      ],
+      "threat_action": [
+        "threatAction"
+      ],
+      "threat_direction": [],
+      "threat_id": [
+        "threatId"
+      ],
+      "threat_name": [
+        "threatName"
+      ],
+      "threat_pattern": [],
+      "threat_ref": [],
+      "threat_score": [],
+      "threat_severity": [
+        "threatSeverity"
+      ],
+      "threat_type": [],
+      "user_authtype": [],
+      "user_classification": [],
+      "user_domain": [],
+      "user_email": [],
+      "user_group": [],
+      "user_id": [],
+      "user_location": [],
+      "user_name": [],
+      "user_org": [],
+      "user_phone": [],
+      "user_role": [],
+      "user_social": []
+    }
+  }
+}

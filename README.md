@@ -2,36 +2,40 @@
 
 ## Introduction
 
-Welcome to the Cisco Meraki MX to FortiAnalyzer integration guide. This project includes a custom parser designed to accurately translate and map Meraki MX event types and parameters into FortiAnalyzer, alongside comprehensive documentation to walk you through the entire deployment process.
+Welcome to the Cisco Meraki MX to FortiAnalyzer integration guide. This project provides procedures to properly configure the FortiGuard SOC Automation third-party log parser, set up a Cisco Meraki MX device to export syslog messages to FortiAnalyzer, and deploy a custom parser designed to accurately translate and map Meraki MX event types and parameters. Comprehensive documentation is included to walk you through the entire deployment process.
 
 ## Overview
 
-The FortiAnalyzer Security Automation Service is a license that provides content packs released from FortiGuard on a monthly basis. The content packs include premium reports, alert handlers, advanced correlation rules, third-party log parsers, and more. These tools are designed to help you detect, investigate, and respond to security incidents. For more information about this service, see FortiAnalyzer Security Automation Service on the FortiGuard website.
+The FortiAnalyzer SOC Automation service is a licensed feature that provides monthly content packs released by FortiGuard. These content packs include premium reports, alert handlers, advanced correlation rules, third-party log parsers, and other tools designed to help you detect, investigate, and respond to security incidents. For more information, see the FortiAnalyzer Security Automation Service on the FortiGuard website.
 
-Cisco Identity Services Engine logs
-FortiAnalyzer supports normalizing Cisco Identity Services Engine logs as Fabric logs.
 
-This log parser enables FortiAnalyzer to parse Cisco Identity Services Engine (ISE) authentication-authorization-accounting syslogs, and normalize user, device, and policy fields into SIEM data. It also provides full AAA visibility through comprehensive field extraction.
+## Environment Requirements
 
-## Enviroment Requirements
-
-FortiAnalyzer 7.6.4 or later
+Cisco Meraki MX device
+FortiAnalyzer 7.6.4 or later with valid license and register to FortiGuard
 FortiAnalyzer SOC Automation Service valid license
 
-## Instalation Requirements
+## Environment Diagram Overview
 
-1. Verify your FortiAnalyzer current Firmware Version.
-2. Verify that your FortiAnalyzer system time is udpate and in sync.
+The Cisco Meraki MX device must me able to send UDP syslog messages (port 514) to Fortinet FortiAnalyzer ip address.
+In this demo scenario, the MX device is using the ip address of the WAN interface to communicate with FortiAnalyzer.
 
 ![image alt text](images/image001.jpg)
 
-3. Verify that your FortiAnalyzer in fylly connected and registered with Forticare Support, and that you have a valid SOC Automation Service license.
+
+## Installation Requirements
+
+1. Verify your FortiAnalyzer current Firmware Version. Also,verify that your FortiAnalyzer system time is update and in sync.
 
 ![image alt text](images/image002.jpg)
 
-4. Verify that your Fortianalyzer conection with Fortiguard is healthy
+2. Verify that your FortiAnalyzer in fully connected and registered with Forticare Support, and that you have a valid SOC Automation Service license.
 
 ![image alt text](images/image003.jpg)
+
+3. Verify that your Fortianalyzer connection with Fortiguard is healthy
+
+![image alt text](images/image004.jpg)
 
 The FortiAnalyzer Security Automation Service includes support for the RHSP FortiGuard package which is used to share updated reports, alert handlers, SIEM parsers, and connectors as content packages. RHSP FortiGuard package objects are only applied with a valid Security Automation Service license.
 
@@ -45,35 +49,86 @@ Alert handlers delivered by the RHSP package are displayed with Origin = FortiGu
 You will need to create and configure the connector for your environment. 
 
 * SIEM parsers: Go to Incidents & Alerts > Log Parsers > Log Parsers.
-A carefully curated selection of log parsers, delivered by the RHSP package are displayed with Origin = FortiGuard. There parsers make the integration with non-Fortinet devices efforless and eficient.
+A carefully curated selection of log parsers, delivered by the RHSP package are displayed with Origin = FortiGuard. There parsers make the integration with non-Fortinet devices effortless and efficient.
 
-5. To review the list of Third-Party log parsers from the Content Packs, go to Incidents & Alerts > FortiGuard Services > SOC Automation:
-
-![image alt text](images/image004.jpg)
-
-6. Search for the Cisco Meraki parser:
+4. To review the list of Third-Party log parsers from the Content Packs, go to Incidents & Alerts > FortiGuard Services > SOC Automation:
 
 ![image alt text](images/image005.jpg)
 
-7. Install Third-Party Log Parser: After verifying that you SOC automation addon is in sync with Fortiguard Content Packs, go to Incidents & Alerts > Log Parsers > Log Parsers in order to install the Cisco Meraki MX Firewall parser.
-8. Click on "Uninstalled Log Parsers" to verify the list of Third-Party log parsers available:
+5. Search for the Cisco Meraki parser:
 
 ![image alt text](images/image006.jpg)
 
-9. Search for "Cisco Meraki Firewall Log Parser" and click *Install* 
+6. Install Third-Party Log Parser: After verifying that you SOC automation addon is in sync with Fortiguard Content Packs, go to Incidents & Alerts > Log Parsers > Log Parsers in order to install the Cisco Meraki MX Firewall parser.
+
+7. Click on "Uninstalled Log Parsers" to verify the list of Third-Party log parsers available:
 
 ![image alt text](images/image007.jpg)
 
-10. Move the Cisco parser to the top of the screen. Verify the parser origin as *FortiGuard*
+8. Search for "Cisco Meraki Firewall Log Parser" and click *Install* 
 
 ![image alt text](images/image008.jpg)
 
-Now, your Fortianalyzer is ready to start receiving and proper parser Cisco Meraki MX syslog messages.
-
-## Cisco Meraki MX device Setup steps:
+9. Move the Cisco parser to the top of the screen. Verify the parser origin as *FortiGuard*
 
 ![image alt text](images/image009.jpg)
 
+10. Now, your Fortianalyzer is ready to start receiving and properly parser Cisco Meraki MX syslog messages.
+In case your FortiAnalyzer supports ADOM´s, it´s recommended that you create a new ADOM to integrate the Cisco Meraki MX device via syslog. We will proceed with the creation of the new ADOM.
+Go to the main dashboard screen, and click on the *ADOM:root* button.
+
 ![image alt text](images/image010.jpg)
 
+11. Click on *Create New ADOM*
+
 ![image alt text](images/image011.jpg)
+
+12. Create a name (ex *MERAKI_INTEGRATION*), and select the type *FABRIC*. Make sure also to select the proper timezone, and click *OK*
+
+![image alt text](images/image012.jpg)
+
+13. After the creation of the new ADOM, click on it to select and change to the new ADOM.
+
+![image alt text](images/image013.jpg)
+
+14. Repeat the steps further explained to select the Cisco Meraki MX parser, install and move it to the top of the list as shown below:
+
+![image alt text](images/image014.jpg)
+
+15. Now your Fortianalyzer system and proper ADOM is ready to start receiving syslog messages from the Cisco Meraki device.
+
+
+## Cisco Meraki MX device Setup steps:
+
+1. Login into your Cisco Meraki dashboard. Select the proper *Organization* and *Network*. Go to *Security & SD-WAN -> Appliance Status -> Uplink* to verify your MX device status, firmware version, and WAN IP address. In *Tools* you can also use the ping to verify it the interface can reach the FortiAnalyzer ip address (192.168.88.82)
+
+![image alt text](images/image015.jpg)
+
+2. In order to enable sending syslog messages to FortiAnalyzer, go to *Network-Wide -> General*. Look for the section *Logging* and create a syslog entry, using the FortiAnalyzer ip address as *Server Address*. Keep the default port and protocol. Select the required Roles, and click *Update syslog servers*
+
+![image alt text](images/image016.jpg)a
+
+3. Go to *Network-Wide ->Alerts* to select the alerts that will be enabled and generate logging messages.
+
+![image alt text](images/image017.jpg)
+
+4. Go to *Security & SD-WAN -> Threat Protection*. Enable AMP and IDS/IPS features, in order to trigger the security engines and generate security log messages.
+
+![image alt text](images/image018.jpg)
+
+5. Go to *Security & SD-WAN -> Content Filtering*. Enable a content category to block for testing purpose (ex. *Tobacco*).
+
+![image alt text](images/image019.jpg)
+
+6. Now, we need to trigger the security engines and content filtering by simulating traffic passing through the Meraki MX device. Some events will be displayed under *Network-Wide -> Monitor -> Event Log*, and security engine event will be displayed under *Security & SD-WAN -> Monitor -> Security Center -> MX Events*.
+
+![image alt text](images/image020.jpg)
+
+![image alt text](images/image021.jpg)
+
+7. You can also verify that the Meraki MX device is sending syslog messages to the FortiAnalyzer, using the Packet Capture. Go to *Network-Wide -> Packet Capture*.
+
+![image alt text](images/image022.jpg)
+
+8. Now that your Cisco Meraki MX device is proper setup and sending syslog messages, lets return to the FortiAnalyzer dashboard and setup the device.
+
