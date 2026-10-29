@@ -1,0 +1,17 @@
+meraki-fortianalyzer-soc-integration
+Copyright 2026 Ivan Sandano Brugnolli
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product includes work derived from meraki_syslog_parser
+(https://github.com/BenderScript/meraki_syslog_parser),
+licensed under the Apache License, Version 2.0.
+
+Modifications: the original Python syslog parsing logic was converted into a
+FortiAnalyzer log parser definition (scripts/custom_meraki_parser.json),
+including FortiAnalyzer field mappings, NAT port direction handling,
+normalized allow/deny actions, and airmarshal event handling.
+
+Cisco Meraki is a trademark of Cisco Systems, Inc. FortiAnalyzer and
+FortiGuard are trademarks of Fortinet, Inc. This project is not affiliated
+with or endorsed by Cisco or Fortinet.
