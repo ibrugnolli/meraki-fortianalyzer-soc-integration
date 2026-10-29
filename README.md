@@ -22,7 +22,7 @@ FortiAnalyzer SOC Automation Service valid license
 
 ## Environment Diagram Overview
 
-The Cisco Meraki MX device must me able to send UDP syslog messages (port 514) to Fortinet FortiAnalyzer ip address.
+The Cisco Meraki MX device nust be able to send UDP syslog messages (port 514) to Fortinet FortiAnalyzer ip address.
 In this demo scenario, the MX device is using the ip address of the WAN interface to communicate with FortiAnalyzer.
 
 ![image alt text](images/image001.jpg)
@@ -96,7 +96,7 @@ Go to the main dashboard screen, and click on the *ADOM:root* button.
 
 ![image alt text](images/image013.jpg)
 
-14. Repeat the steps further explained to select the Cisco Meraki MX parser, install and move it to the top of the list as shown below:
+14. Repeat the steps described above to select the Cisco Meraki MX parser, install and move it to the top of the list as shown below:
 
 ![image alt text](images/image014.jpg)
 
@@ -111,7 +111,7 @@ Go to the main dashboard screen, and click on the *ADOM:root* button.
 
 2. In order to enable sending syslog messages to FortiAnalyzer, go to *Network-Wide -> General*. Look for the section *Logging* and create a syslog entry, using the FortiAnalyzer ip address as *Server Address*. Keep the default port and protocol. Select the required Roles, and click *Update syslog servers*
 
-![image alt text](images/image016.jpg)a
+![image alt text](images/image016.jpg)
 
 3. Go to *Network-Wide ->Alerts* to select the alerts that will be enabled and generate logging messages.
 
@@ -141,7 +141,7 @@ Go to the main dashboard screen, and click on the *ADOM:root* button.
 
 Once your Cisco Meraki MX starting sending syslog messages to the FortiAnalyzer, this device is displayed in the root ADOM as unauthorized devices. You can quickly view unauthorized devices by clicking Unauthorized Devices in the quick status bar. You must authorize the devices before FortiAnalyzer can start receiving logs from the devices.
 
-Because in this scenario, we are using ADOMs, you must assign the device the ADOM created before (ex.*MERAKI_INTEGRATION*).
+Because in this scenario, we are using ADOM's, you must assign the device the ADOM created before (ex.*MERAKI_INTEGRATION*).
 
 1. Right click in the unauthorized device, and select *Authorize*.
 
@@ -182,7 +182,7 @@ Navigate to Incidents & Alerts > Log Parsers > Log Parsers, and click *Create Ne
 
 ![image alt text](images/image031.jpg)
 
-Simplily Copy&Paste the json content in the followin screen and click *Apply*.
+Simplify Copy&Paste the json content in the following screen and click *Apply*.
 
 ![image alt text](images/image032.jpg)
 
