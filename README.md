@@ -4,7 +4,7 @@
 
 ## Introduction
 
-Welcome to the Cisco Meraki MX to FortiAnalyzer integration guide. This project provides procedures to properly configure the FortiGuard SOC Automation third-party log parser, set up a Cisco Meraki MX device to export syslog messages to FortiAnalyzer, and deploy a custom parser designed to accurately translate and map Meraki MX event types and parameters. Comprehensive documentation is included to walk you through the entire deployment process.
+Welcome to the FortiAnalyzer SOC Automation integration guide with Cisco Meraki MX device. This project provides procedures to properly configure the FortiGuard SOC Automation third-party log parser, set up a Cisco Meraki MX device to export syslog messages to FortiAnalyzer, and deploy a custom parser designed to accurately translate and map Meraki MX event types and parameters. Comprehensive documentation is included to walk you through the entire deployment process.
 
 ![image alt text](images/intro.jpg)
 
