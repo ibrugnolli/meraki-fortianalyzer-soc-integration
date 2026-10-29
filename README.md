@@ -16,9 +16,10 @@ The FortiAnalyzer SOC Automation service is a licensed feature that provides mon
 
 ## Environment Requirements
 
-Cisco Meraki MX device
-FortiAnalyzer 7.6.4 or later with valid license and register to FortiGuard
-FortiAnalyzer SOC Automation Service valid license
+1. Cisco Meraki MX device (tested with MX67 running version MX 26.2.3)
+2. FortiAnalyzer 7.6.4 or later with valid license and register to FortiGuard (teste with version v8.0.2 build0198)
+3. FortiAnalyzer SOC Automation Service valid license
+
 
 ## Environment Diagram Overview
 
