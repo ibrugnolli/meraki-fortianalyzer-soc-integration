@@ -1,8 +1,13 @@
 # meraki-fortianalyzer-soc-integration
 
+
+
 ## Introduction
 
 Welcome to the Cisco Meraki MX to FortiAnalyzer integration guide. This project provides procedures to properly configure the FortiGuard SOC Automation third-party log parser, set up a Cisco Meraki MX device to export syslog messages to FortiAnalyzer, and deploy a custom parser designed to accurately translate and map Meraki MX event types and parameters. Comprehensive documentation is included to walk you through the entire deployment process.
+
+![image alt text](images/intro.jpg)
+
 
 ## Overview
 
@@ -132,3 +137,59 @@ Go to the main dashboard screen, and click on the *ADOM:root* button.
 
 8. Now that your Cisco Meraki MX device is proper setup and sending syslog messages, lets return to the FortiAnalyzer dashboard and setup the device.
 
+## Adding Cisco Meraki MX as an FortiAnalyzer authorized device:
+
+Once your Cisco Meraki MX starting sending syslog messages to the FortiAnalyzer, this device is displayed in the root ADOM as unauthorized devices. You can quickly view unauthorized devices by clicking Unauthorized Devices in the quick status bar. You must authorize the devices before FortiAnalyzer can start receiving logs from the devices.
+
+Because in this scenario, we are using ADOMs, you must assign the device the ADOM created before (ex.*MERAKI_INTEGRATION*).
+
+1. Right click in the unauthorized device, and select *Authorize*.
+
+![image alt text](images/image023.jpg)
+ 
+2. The Authorize Device dialog box opens. Select the ADOM in the Add the following device(s) to ADOM list and click OK.
+
+![image alt text](images/image024.jpg)
+
+![image alt text](images/image025.jpg)
+
+3. Once the device is authorized and the FortiAnalyzer receives syslog messages, it will update the status *UP*.
+
+![image alt text](images/image026.jpg)
+
+4. Wait a couple of minutes, then navigate to Incidents & Alerts > Log Parsers > Assigned Parsers. Verify that FortiAnalyzer automatically creates a new assignment using the Cisco Meraki Firewall Log Parser. This confirms that the system has successfully interpreted and parsed the incoming messages. 
+
+![image alt text](images/image027.jpg)
+
+5. Navigate to Log View > Logs > All. Using the filter, find all the logs containing *Cisco*.
+
+![image alt text](images/image028.jpg)
+
+![image alt text](images/image029.jpg)
+
+![image alt text](images/image030.jpg)
+
+
+## Using a Cisco Meraki MX custom parser:
+
+Third-party parsers provided by FortiGuard establish a baseline for SOC analysts to begin integrating external devices into FortiAnalyzer. This custom parser extends that foundational work, offering deeper interpretation and mapping of the *event_type* messages available in the latest firmware releases of Cisco Meraki MX devices.
+
+The json parser provided here will help you achieve further interpretation of the Cisco Meraki MX device.
+
+
+
+Navigate to Incidents & Alerts > Log Parsers > Log Parsers, and click *Create New*.
+
+![image alt text](images/image031.jpg)
+
+Simplily Copy&Paste the json content in the followin screen and click *Apply*.
+
+![image alt text](images/image032.jpg)
+
+![image alt text](images/image033.jpg)
+
+![image alt text](images/image034.jpg)
+
+![image alt text](images/image035.jpg)
+
+![image alt text](images/image036.jpg)
